@@ -42,6 +42,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Av. 9, 1234 - Centro, Barretos - SP',
     phone: '(17) 3321-1234',
     hours: 'Seg a Sex: 6h às 22h | Sáb: 8h às 14h',
+    latitude: -20.5577,
+    longitude: -48.5677,
   },
   {
     id: '2',
@@ -57,6 +59,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Rua 14, 567 - Centro, Barretos - SP',
     phone: '(17) 3322-5678',
     hours: 'Seg a Sex: 8h às 19h | Sáb: 8h às 13h',
+    latitude: -20.5587,
+    longitude: -48.5687,
   },
   {
     id: '3',
@@ -72,6 +76,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Av. 22, 890 - Jardim América, Barretos - SP',
     phone: '(17) 3323-9012',
     hours: 'Seg a Sex: 11h às 15h e 18h às 21h',
+    latitude: -20.5597,
+    longitude: -48.5697,
   },
   {
     id: '4',
@@ -87,6 +93,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Rua 18, 345 - Centro, Barretos - SP',
     phone: '(17) 3324-3456',
     hours: 'Seg a Sex: 7h às 20h | Sáb: 8h às 12h',
+    latitude: -20.5607,
+    longitude: -48.5707,
   },
   {
     id: '5',
@@ -102,6 +110,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Av. 11, 678 - Centro, Barretos - SP',
     phone: '(17) 3325-6789',
     hours: 'Seg a Sex: 8h às 18h',
+    latitude: -20.5617,
+    longitude: -48.5717,
   },
   {
     id: '6',
@@ -117,6 +127,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Rua 26, 1122 - Jardim Primavera, Barretos - SP',
     phone: '(17) 3326-1122',
     hours: 'Seg a Sex: 6h às 22h | Sáb: 8h às 12h',
+    latitude: -20.5627,
+    longitude: -48.5727,
   },
   {
     id: '7',
@@ -132,6 +144,8 @@ export const mockCoupons: Coupon[] = [
     address: 'Av. 33, 2233 - Centro, Barretos - SP',
     phone: '(17) 3327-2233',
     hours: 'Seg a Sáb: 9h às 19h',
+    latitude: -20.5637,
+    longitude: -48.5737,
   },
   {
     id: '8',
@@ -147,5 +161,7 @@ export const mockCoupons: Coupon[] = [
     address: 'Rua 7, 445 - Centro, Barretos - SP',
     phone: '(17) 3328-4455',
     hours: 'Seg a Sex: 9h às 19h | Sáb: 9h às 13h',
+    latitude: -20.5647,
+    longitude: -48.5747,
   },
 ];

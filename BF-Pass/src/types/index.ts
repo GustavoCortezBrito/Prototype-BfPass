@@ -12,6 +12,7 @@ export interface User {
   planValidUntil?: string;
   cashbackActive?: boolean;
   cashbackPoints?: number;
+  profileImage?: string;
 }
 
 export interface Coupon {
@@ -28,6 +29,8 @@ export interface Coupon {
   address?: string;
   phone?: string;
   hours?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface RedeemedCoupon {
@@ -45,6 +48,8 @@ export interface AuthContextData {
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUser: (data: Partial<User>) => Promise<void>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  updateProfileImage: (imageUri: string) => Promise<void>;
   redeemCoupon: (couponId: string) => Promise<void>;
   getRedeemedCoupons: () => RedeemedCoupon[];
 }

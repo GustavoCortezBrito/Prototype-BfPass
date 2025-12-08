@@ -87,6 +87,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(updatedUser);
   }
 
+  async function updatePassword(currentPassword: string, newPassword: string) {
+    if (!user) return;
+    
+    if (user.password !== currentPassword) {
+      throw new Error('Senha atual incorreta');
+    }
+    
+    const updatedUser = { ...user, password: newPassword };
+    const users = await storageService.getUsers();
+    const index = users.findIndex(u => u.id === user.id);
+    
+    if (index !== -1) {
+      users[index] = updatedUser;
+      await storageService.saveUsers(users);
+    }
+    
+    await storageService.saveUser(updatedUser);
+    setUser(updatedUser);
+  }
+
+  async function updateProfileImage(imageUri: string) {
+    if (!user) return;
+    
+    const updatedUser = { ...user, profileImage: imageUri };
+    const users = await storageService.getUsers();
+    const index = users.findIndex(u => u.id === user.id);
+    
+    if (index !== -1) {
+      users[index] = updatedUser;
+      await storageService.saveUsers(users);
+    }
+    
+    await storageService.saveUser(updatedUser);
+    setUser(updatedUser);
+  }
+
   async function redeemCoupon(couponId: string) {
     if (!user) return;
     
@@ -119,6 +155,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signUp,
         signOut,
         updateUser,
+        updatePassword,
+        updateProfileImage,
         redeemCoupon,
         getRedeemedCoupons,
       }}

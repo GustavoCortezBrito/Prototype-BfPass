@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Image, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../contexts/AuthContext';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { colors } from '../utils/colors';
 
 export const ProfileScreen = ({ navigation }: any) => {
-  const { user, signOut, updateUser } = useAuth();
+  const { user, signOut, updateUser, updatePassword, updateProfileImage } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [loading, setLoading] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleUpdate = async () => {
     if (!name || !email) {
@@ -26,6 +31,62 @@ export const ProfileScreen = ({ navigation }: any) => {
       Alert.alert('Erro', error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      Alert.alert('Erro', 'Preencha todos os campos');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Erro', 'As senhas não coincidem');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert('Erro', 'A nova senha deve ter no mínimo 6 caracteres');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updatePassword(currentPassword, newPassword);
+      Alert.alert('Sucesso', 'Senha alterada com sucesso!');
+      setShowPasswordModal(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      Alert.alert('Erro', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (status !== 'granted') {
+      Alert.alert('Permissão necessária', 'Precisamos de permissão para acessar suas fotos');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      try {
+        await updateProfileImage(result.assets[0].uri);
+        Alert.alert('Sucesso', 'Foto de perfil atualizada!');
+      } catch (error) {
+        Alert.alert('Erro', 'Não foi possível atualizar a foto');
+      }
     }
   };
 
@@ -51,9 +112,16 @@ export const ProfileScreen = ({ navigation }: any) => {
             <Ionicons name="arrow-back" size={24} color={colors.white} />
           </TouchableOpacity>
         )}
-        <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={48} color={colors.white} />
-        </View>
+        <TouchableOpacity style={styles.avatarContainer} onPress={handlePickImage}>
+          {user?.profileImage ? (
+            <Image source={{ uri: user.profileImage }} style={styles.avatarImage} />
+          ) : (
+            <Ionicons name="person" size={48} color={colors.white} />
+          )}
+          <View style={styles.cameraIcon}>
+            <Ionicons name="camera" size={20} color={colors.white} />
+          </View>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>{user?.name}</Text>
         <View style={styles.roleBadge}>
           <Text style={styles.roleText}>
@@ -85,6 +153,15 @@ export const ProfileScreen = ({ navigation }: any) => {
           onPress={handleUpdate}
           loading={loading}
         />
+
+        <TouchableOpacity 
+          style={styles.changePasswordButton}
+          onPress={() => setShowPasswordModal(true)}
+        >
+          <Ionicons name="lock-closed" size={20} color={colors.primary} />
+          <Text style={styles.changePasswordText}>Alterar Senha</Text>
+          <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
+        </TouchableOpacity>
 
         <View style={styles.planSection}>
           <Text style={styles.sectionTitle}>Meu Plano BF-PASS</Text>
@@ -136,6 +213,54 @@ export const ProfileScreen = ({ navigation }: any) => {
           variant="outline"
         />
       </View>
+
+      <Modal
+        visible={showPasswordModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowPasswordModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Alterar Senha</Text>
+              <TouchableOpacity onPress={() => setShowPasswordModal(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <Input
+              label="Senha Atual"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder="Digite sua senha atual"
+              secureTextEntry
+            />
+
+            <Input
+              label="Nova Senha"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="Digite a nova senha"
+              secureTextEntry
+            />
+
+            <Input
+              label="Confirmar Nova Senha"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirme a nova senha"
+              secureTextEntry
+            />
+
+            <Button
+              title="Alterar Senha"
+              onPress={handleChangePassword}
+              loading={loading}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -146,8 +271,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: 24,
-    paddingTop: 60,
+    padding: 20,
+    paddingTop: 56,
     backgroundColor: colors.secondary,
     alignItems: 'center',
     borderBottomLeftRadius: 24,
@@ -156,15 +281,15 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 40,
-    left: 16,
+    top: 36,
+    left: 12,
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1,
+    zIndex: 10,
   },
   avatarContainer: {
     width: 96,
@@ -174,6 +299,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    position: 'relative',
+  },
+  avatarImage: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+  },
+  cameraIcon: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.secondary,
   },
   headerTitle: {
     fontSize: 24,
@@ -193,7 +337,7 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   content: {
-    padding: 24,
+    padding: 20,
   },
   sectionTitle: {
     fontSize: 18,
@@ -289,5 +433,45 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 14,
     color: colors.textLight,
+  },
+  changePasswordButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginVertical: 16,
+    gap: 12,
+  },
+  changePasswordText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
   },
 });

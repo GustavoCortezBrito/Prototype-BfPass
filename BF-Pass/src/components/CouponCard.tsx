@@ -43,15 +43,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
   image: {
     width: '100%',
-    height: 160,
+    height: 180,
     backgroundColor: colors.border,
   },
   content: {
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   discount: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: colors.primary,
   },
